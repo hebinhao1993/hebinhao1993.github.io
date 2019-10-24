@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.4.2',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="介绍 集合论的基础是数理逻辑，其次集合论要承认集合的存在以及集合之间\(\in\)和\(\notin\)的关系的存在。 集合之间的其他关系都从\(\in\)关系中推导出来，例如\(x \subseteq a\)即\(\forall t (t\in x \Rightarrow t \in a)\)">
+<meta property="og:type" content="article">
+<meta property="og:title" content="elements of set theory">
+<meta property="og:url" content="https:&#x2F;&#x2F;hebinhao1993.github.io&#x2F;2019&#x2F;05&#x2F;21&#x2F;elements-of-set-theory&#x2F;index.html">
+<meta property="og:site_name" content="HeBinhao&#39;s Blog">
+<meta property="og:description" content="介绍 集合论的基础是数理逻辑，其次集合论要承认集合的存在以及集合之间\(\in\)和\(\notin\)的关系的存在。 集合之间的其他关系都从\(\in\)关系中推导出来，例如\(x \subseteq a\)即\(\forall t (t\in x \Rightarrow t \in a)\)">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-10-24T14:11:56.678Z">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://hebinhao1993.github.io/2019/05/21/elements-of-set-theory/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>elements of set theory | HeBinhao's Blog</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">HeBinhao's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://hebinhao1993.github.io/2019/05/21/elements-of-set-theory/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="HeBinhao">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="HeBinhao's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          elements of set theory
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2019-05-21 14:40:54" itemprop="dateCreated datePublished" datetime="2019-05-21T14:40:54+00:00">2019-05-21</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2019-10-24 14:11:56" itemprop="dateModified" datetime="2019-10-24T14:11:56+00:00">2019-10-24</time>
+              </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/2019/05/21/elements-of-set-theory/#comments" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/05/21/elements-of-set-theory/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="介绍">介绍</h2>
+<p>集合论的基础是数理逻辑，其次集合论要承认集合的存在以及集合之间<span class="math inline">\(\in\)</span>和<span class="math inline">\(\notin\)</span>的关系的存在。</p>
+<p>集合之间的其他关系都从<span class="math inline">\(\in\)</span>关系中推导出来，例如<span class="math inline">\(x \subseteq a\)</span>即<span class="math inline">\(\forall t (t\in x \Rightarrow t \in a)\)</span></p>
+<a id="more"></a>
+<h2 id="部分公理和一些运算符">部分公理和一些运算符</h2>
+<h3 id="extensionality-axiom">Extensionality Axiom</h3>
+<p>If two sets have exactly the same members, then they are equal.</p>
+<p><span class="math display">\[
+\forall A \forall B [\forall x (x \in A \Leftrightarrow x \in B) \Rightarrow A = B]
+\]</span></p>
+<h3 id="empty-set-axiom">Empty Set Axiom</h3>
+<p>There exist a set having no members.</p>
+<p><span class="math display">\[
+\exists B \forall x \ x \notin B
+\]</span></p>
+<h3 id="pairing-axiom">Pairing Axiom</h3>
+<p>For any sets <span class="math inline">\(u\)</span> and <span class="math inline">\(v\)</span>, there is a set having as members just <span class="math inline">\(u\)</span> and <span class="math inline">\(v\)</span>.</p>
+<p><span class="math display">\[
+\forall u, \forall v, \exists B, \forall x ( x \in B \Leftrightarrow x = u\ or\ x = v)
+\]</span></p>
+<h3 id="union-axiom">Union Axiom</h3>
+<p>For any set <span class="math inline">\(A\)</span>, there exists a set <span class="math inline">\(B\)</span> whose elementts are exactly the members of the members of A:</p>
+<p><span class="math display">\[
+\forall x [x \in B \Leftrightarrow (\exists b \in A) x \in b]
+\]</span></p>
+<h3 id="power-set-axiom">Power Set Axiom</h3>
+<p>For any set <span class="math inline">\(a\)</span>, there is a set whose members are exactly the subsets of <span class="math inline">\(a\)</span>.</p>
+<p><span class="math display">\[
+\forall a, \exists B, \forall x (x \in B \Leftrightarrow x \subseteq a).
+\]</span></p>
+<h3 id="subset-axioms">Subset Axioms</h3>
+<p>For each formula __ not containing B, the following is an axiom:</p>
+<p><span class="math display">\[
+\forall t_1 \cdots \forall t_k \forall c \exists B \forall x (x \in B \Leftrightarrow x \in c \And \text{__})
+\]</span></p>
+<p>这里的formula不是任意的语句，必须是可以用逻辑语言描述的语句。</p>
+<p>从Subset Axioms可以推导出，对任意一个非空集合<span class="math inline">\(A\)</span>，存在一个集合它的成员刚好是<span class="math inline">\(A\)</span>的每个成员的成员。</p>
+<h3 id="运算符">运算符</h3>
+<p>从上述这些公理我们可以定义一些运算<span class="math inline">\(\subseteq\)</span>,<span class="math inline">\(\bigcup\)</span>,<span class="math inline">\(\bigcap\)</span> <span class="math inline">\(-\)</span>。这四个运算共同组成了the algebra of sets。</p>
+<h2 id="关系和函数-relations-and-functions">关系和函数 (relations and functions)</h2>
+<h3 id="definition-of-ordered-pairs">definition of ordered pairs</h3>
+<p><span class="math display">\[
+&lt;x, y&gt; \text{is defined to be} \{\{x\}, \{x,y\}\}
+\]</span></p>
+<h3 id="cartesian-product">cartesian product</h3>
+<p><span class="math display">\[
+A \times B  = {&lt;x,y&gt; | x \in A \And y \in B}
+\]</span></p>
+<h3 id="definition-of-relation-binary-relation">definition of relation (binary relation)</h3>
+<p><span class="math display">\[
+\text{A relation is a set of ordered pairs}
+\]</span></p>
+<h3 id="definition-of-domain-range-and-field">definition of domain, range and field</h3>
+<p><span class="math display">\[
+\begin{equation*}
+\begin{split}
+x \in \text{dom} R \Leftrightarrow&amp; \exists y, &lt;x, y&gt; \in R,\\
+x \in \text{ran} R \Leftrightarrow&amp; \exists x, &lt;x, y&gt; \in R,\\
+\text{fld} R =&amp; \text{dom} R \bigcup \text{ran} R
+\end{split}
+\end{equation*}
+\]</span></p>
+<h3 id="definition-of-n-ary-relations">definition of n-ARY relations</h3>
+<p><span class="math display">\[
+&lt;x_1, x2, x3, x4&gt; = &lt;&lt;x_1,x_2,x_3&gt;, x_4&gt; = &lt;&lt;&lt;x_1, x_2&gt;, x_3&gt;, x_4&gt;
+\]</span></p>
+<h3 id="definition-of-function">definition of function</h3>
+<p>A function is a relation <span class="math inline">\(F\)</span> such that for each <span class="math inline">\(x\)</span> in <span class="math inline">\(\text{dom} F\)</span> there is only one <span class="math inline">\(y\)</span> such that <span class="math inline">\(xFy\)</span></p>
+<h3 id="definition-of-single-rooted">definition of single-rooted</h3>
+<p>A set <span class="math inline">\(R\)</span> is single-rooted iff for each <span class="math inline">\(y \in \text{ran} R\)</span> there is only one <span class="math inline">\(x\)</span> such that <span class="math inline">\(xRy\)</span></p>
+<h3 id="definitions">definitions</h3>
+<p>The inverse of a set <span class="math inline">\(F\)</span>:</p>
+<p><span class="math display">\[
+F^{-1} = \{&lt;u,v&gt; | vFu\}
+\]</span></p>
+<p>The composition of set <span class="math inline">\(F\)</span> and set <span class="math inline">\(G\)</span>:</p>
+<p><span class="math display">\[
+F \circ G = \{&lt;u,v&gt; | \exists t (uGt \And tFv)\}
+\]</span></p>
+<p>The restriction of <span class="math inline">\(F\)</span> to <span class="math inline">\(A\)</span>:</p>
+<p><span class="math display">\[
+F \restriction A = \{&lt;u,v&gt;| uFv \And u \in A\}
+\]</span></p>
+<p>The image of <span class="math inline">\(A\)</span> under <span class="math inline">\(F\)</span>:</p>
+<p><span class="math display">\[
+\begin{equation*}
+\begin{split}
+F [\![ A ]\!] =&amp; \text{ran} F (\restriction A) \\
+=&amp; \{v| (\exists u \in A) uFv \}
+\end{split}
+\end{equation*}
+\]</span></p>
+<h3 id="axiom-of-choice-first-form">Axiom of Choice (first form)</h3>
+<p>For any relation <span class="math inline">\(R\)</span> there is a function <span class="math inline">\(H \subseteq R\)</span> with <span class="math inline">\(\text{dom} H = \text{dom} R\)</span></p>
+<h3 id="some-definitions">some definitions</h3>
+<p>For sets <span class="math inline">\(A\)</span> and <span class="math inline">\(B\)</span> we can form the collection of functions <span class="math inline">\(F\)</span> from <span class="math inline">\(A\)</span> into <span class="math inline">\(B\)</span></p>
+<p><span class="math display">\[
+\sideset{^A}{}B = \{F | \text{F is a function from A into B}\}
+\]</span></p>
+<h3 id="infinite-cartesian-product">infinite cartesian product</h3>
+<p>...</p>
+<h3 id="equavalence-relations">equavalence relations</h3>
+<p><span class="math inline">\(R\)</span> is a <em>equavalence relation</em> on <span class="math inline">\(A\)</span> iff <span class="math inline">\(R\)</span> is a binary relation on <span class="math inline">\(A\)</span> that is reflexive on A, sysmmetric, and transitive.</p>
+<h3 id="definition">definition</h3>
+<p>The set <span class="math inline">\([x]_R\)</span> is defined by:</p>
+<p><span class="math display">\[
+[x]_R = \{t | xRt\}
+\]</span></p>
+<p>A partition <span class="math inline">\(\prod\)</span> of a set <span class="math inline">\(A\)</span> is a set of nonempyt subsets of <span class="math inline">\(A\)</span> that is disjoint and exhuastive:</p>
+<p>no two different sets in <span class="math inline">\(\prod\)</span> have any common elements</p>
+<p>each element of A is in some set in <span class="math inline">\(\prod\)</span></p>
+<p>if <span class="math inline">\(R\)</span> is an equivalence relation on <span class="math inline">\(A\)</span>, then we can define the <span class="math inline">\(quotinent set\)</span> <span class="math display">\[
+A/R = \{ [x]_R | x \in A \}
+\]</span></p>
+<h3 id="ordering-relations">ordering relations</h3>
+<p>Let <span class="math inline">\(A\)</span> be any set. A linear ordering on <span class="math inline">\(A\)</span> (also called a total ordering on <span class="math inline">\(A\)</span>) is a binary relation <span class="math inline">\(R\)</span> on <span class="math inline">\(A\)</span> (i.e. <span class="math inline">\(R \subseteq A \times A\)</span>) meeting the following two conditions:</p>
+<p><span class="math inline">\(R\)</span> is a transitive relation</p>
+<p><span class="math inline">\(R\)</span> satisfies trichotomy on <span class="math inline">\(A\)</span>, by which we mean that for any <span class="math inline">\(x\)</span> and <span class="math inline">\(y\)</span> in <span class="math inline">\(A\)</span>, exactly one of the three alternatives</p>
+<p><span class="math display">\[
+xRy,\quad x = y, \quad yRx
+\]</span></p>
+<h2 id="natural-numbers">Natural Numbers</h2>
+<p>For any set <span class="math inline">\(a\)</span>, its successor <span class="math inline">\(a^+\)</span> id defined by</p>
+<p><span class="math display">\[
+a^+ = a \bigcup {a}
+\]</span></p>
+<p>A set <span class="math inline">\(A\)</span> is said to be <em>inductive</em> iff <span class="math inline">\(\emptyset \in A\)</span> and it is "closed iunder successor", i.e. <span class="math inline">\(\forall a \in A, a^+ \in A\)</span></p>
+<h3 id="infinity-axiom">infinity Axiom</h3>
+<p>There exists an inductive set:</p>
+<p><span class="math display">\[
+\exists A [ \emptyset \in A \ \And\ (\forall a \in A) a^+ \in A]
+\]</span></p>
+<h3 id="definition-of-natural-number">definition of natural number</h3>
+<p>A nutrual number is a set that belongs to every inductive set</p>
+<h2 id="construction-of-the-real-numbers">construction of the real numbers</h2>
+<h3 id="integers">integers</h3>
+<p>define <span class="math inline">\(\sim\)</span> to be the relation on <span class="math inline">\(\omega \times \omega\)</span> for which <span class="math display">\[
+&lt;m,n&gt; \sim &lt;p,q&gt;\iff m+q=p+n
+\]</span></p>
+<p>The set <span class="math inline">\(\mathbb{Z}\)</span> of integers is the set <span class="math inline">\((\omega \times \omega)/\sim\)</span> of all equaivalence classes of differences</p>
+<h3 id="rational-numbers">rational numbers</h3>
+<p>define <span class="math inline">\(\sim\)</span> to be the relation on <span class="math inline">\(\mathbb{Z} \times \mathbb{Z}\)</span> for which <span class="math display">\[
+&lt;a,b&gt; \sim &lt;c,d&gt;\iff a\cdot d = c\cdot b
+\]</span></p>
+<p>The set <span class="math inline">\(\mathbb{Q}\)</span> of rational numbers is the set <span class="math inline">\(\mathbb{Z} \times \mathbb{Z} /\sim\)</span> of all equavalence classes of fractions.</p>
+<h3 id="real-numbers">real numbers</h3>
+<p>dedekind cut</p>
+<p>...</p>
+<h2 id="cardinal-numbers-and-the-axiom-of-choice">cardinal numbers and the axiom of choice</h2>
+<p>A set <span class="math inline">\(A\)</span> is equinumerous to a set <span class="math inline">\(B\)</span> (written <span class="math inline">\(A \approx B\)</span>) ifff there is a one-to-one function from A onto B.</p>
+<p>A set is <em>finite</em> iff it is equinumerous to some natural numebr. Otherwise it is infinite.</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+                <a href="/2018/11/08/hello-world/" rel="next" title="Hello World">
+                  <i class="fa fa-chevron-left"></i> Hello World
+                </a>
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+                <a href="/2019/06/24/IA32-and-Intel64-Basic-Execution-Environment/" rel="prev" title="Intel 64 和 IA-32 基本运行环境">
+                  Intel 64 和 IA-32 基本运行环境 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    
+  <div class="comments" id="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#介绍"><span class="nav-number">1.</span> <span class="nav-text">介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#部分公理和一些运算符"><span class="nav-number">2.</span> <span class="nav-text">部分公理和一些运算符</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#extensionality-axiom"><span class="nav-number">2.1.</span> <span class="nav-text">Extensionality Axiom</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#empty-set-axiom"><span class="nav-number">2.2.</span> <span class="nav-text">Empty Set Axiom</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#pairing-axiom"><span class="nav-number">2.3.</span> <span class="nav-text">Pairing Axiom</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#union-axiom"><span class="nav-number">2.4.</span> <span class="nav-text">Union Axiom</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#power-set-axiom"><span class="nav-number">2.5.</span> <span class="nav-text">Power Set Axiom</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#subset-axioms"><span class="nav-number">2.6.</span> <span class="nav-text">Subset Axioms</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#运算符"><span class="nav-number">2.7.</span> <span class="nav-text">运算符</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#关系和函数-relations-and-functions"><span class="nav-number">3.</span> <span class="nav-text">关系和函数 (relations and functions)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#definition-of-ordered-pairs"><span class="nav-number">3.1.</span> <span class="nav-text">definition of ordered pairs</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#cartesian-product"><span class="nav-number">3.2.</span> <span class="nav-text">cartesian product</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#definition-of-relation-binary-relation"><span class="nav-number">3.3.</span> <span class="nav-text">definition of relation (binary relation)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#definition-of-domain-range-and-field"><span class="nav-number">3.4.</span> <span class="nav-text">definition of domain, range and field</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#definition-of-n-ary-relations"><span class="nav-number">3.5.</span> <span class="nav-text">definition of n-ARY relations</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#definition-of-function"><span class="nav-number">3.6.</span> <span class="nav-text">definition of function</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#definition-of-single-rooted"><span class="nav-number">3.7.</span> <span class="nav-text">definition of single-rooted</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#definitions"><span class="nav-number">3.8.</span> <span class="nav-text">definitions</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#axiom-of-choice-first-form"><span class="nav-number">3.9.</span> <span class="nav-text">Axiom of Choice (first form)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#some-definitions"><span class="nav-number">3.10.</span> <span class="nav-text">some definitions</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#infinite-cartesian-product"><span class="nav-number">3.11.</span> <span class="nav-text">infinite cartesian product</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#equavalence-relations"><span class="nav-number">3.12.</span> <span class="nav-text">equavalence relations</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#definition"><span class="nav-number">3.13.</span> <span class="nav-text">definition</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ordering-relations"><span class="nav-number">3.14.</span> <span class="nav-text">ordering relations</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#natural-numbers"><span class="nav-number">4.</span> <span class="nav-text">Natural Numbers</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#infinity-axiom"><span class="nav-number">4.1.</span> <span class="nav-text">infinity Axiom</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#definition-of-natural-number"><span class="nav-number">4.2.</span> <span class="nav-text">definition of natural number</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#construction-of-the-real-numbers"><span class="nav-number">5.</span> <span class="nav-text">construction of the real numbers</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#integers"><span class="nav-number">5.1.</span> <span class="nav-text">integers</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#rational-numbers"><span class="nav-number">5.2.</span> <span class="nav-text">rational numbers</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#real-numbers"><span class="nav-number">5.3.</span> <span class="nav-text">real numbers</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#cardinal-numbers-and-the-axiom-of-choice"><span class="nav-number">6.</span> <span class="nav-text">cardinal numbers and the axiom of choice</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <img class="site-author-image" itemprop="image" alt="HeBinhao"
+    src="/images/avatar.gif">
+  <p class="site-author-name" itemprop="name">HeBinhao</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">3</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/hebinhao1993" title="Github &amp;rarr; https:&#x2F;&#x2F;github.com&#x2F;hebinhao1993" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>Github</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">HeBinhao</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.0.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.4.2
+  </div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/pisces.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+<script type="text/x-mathjax-config">
+
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$', '$'], ['\\(', '\\)'] ],
+      processEscapes: true,
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+      equationNumbers: {
+        autoNumber: 'AMS'
+      }
+    }
+  });
+
+  MathJax.Hub.Register.StartupHook('TeX Jax Ready', function() {
+    MathJax.InputJax.TeX.prefilterHooks.Add(function(data) {
+      if (data.display) {
+        var next = data.script.nextSibling;
+        while (next && next.nodeName.toLowerCase() === '#text') {
+          next = next.nextSibling;
+        }
+        if (next && next.nodeName.toLowerCase() === 'br') {
+          next.parentNode.removeChild(next);
+        }
+      }
+    });
+  });
+
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for (i = 0; i < all.length; i += 1) {
+      element = document.getElementById(all[i].inputID + '-Frame').parentNode;
+      if (element.nodeName.toLowerCase() == 'li') {
+        element = element.parentNode;
+      }
+      element.classList.add('has-jax');
+    }
+  });
+</script>
+<script>
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML', () => {
+    MathJax.Hub.Typeset();
+  }, window.MathJax);
+</script>
+
+    
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://hebinhao1993.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  function loadComments() {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: {page: {
+            url: "https://hebinhao1993.github.io/2019/05/21/elements-of-set-theory/",
+            identifier: "2019/05/21/elements-of-set-theory/",
+            title: "elements of set theory"
+          }
+        }
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://hebinhao1993.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  }
+    window.addEventListener('load', loadComments, false);
+</script>
+
+</body>
+</html>

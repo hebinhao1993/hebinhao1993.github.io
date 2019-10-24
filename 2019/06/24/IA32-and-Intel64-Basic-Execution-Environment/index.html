@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.4.2',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="本文是对 intel 64 and IA-32 Architecture Software Developer&amp;apos;s Manual 中第3章Basic Excution Environment的翻译。 本章内容描述了 Intel 64 或 IA-32 汇编语言程序员所能见的基本的执行环境(basic execution environment)。描述了处理器如何执行指令，以及它如何保存和操作数据。本">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Intel 64 和 IA-32 基本运行环境">
+<meta property="og:url" content="https:&#x2F;&#x2F;hebinhao1993.github.io&#x2F;2019&#x2F;06&#x2F;24&#x2F;IA32-and-Intel64-Basic-Execution-Environment&#x2F;index.html">
+<meta property="og:site_name" content="HeBinhao&#39;s Blog">
+<meta property="og:description" content="本文是对 intel 64 and IA-32 Architecture Software Developer&amp;apos;s Manual 中第3章Basic Excution Environment的翻译。 本章内容描述了 Intel 64 或 IA-32 汇编语言程序员所能见的基本的执行环境(basic execution environment)。描述了处理器如何执行指令，以及它如何保存和操作数据。本">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-10-24T14:11:56.678Z">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://hebinhao1993.github.io/2019/06/24/IA32-and-Intel64-Basic-Execution-Environment/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>Intel 64 和 IA-32 基本运行环境 | HeBinhao's Blog</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">HeBinhao's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://hebinhao1993.github.io/2019/06/24/IA32-and-Intel64-Basic-Execution-Environment/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="HeBinhao">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="HeBinhao's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Intel 64 和 IA-32 基本运行环境
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2019-06-24 15:14:44" itemprop="dateCreated datePublished" datetime="2019-06-24T15:14:44+00:00">2019-06-24</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2019-10-24 14:11:56" itemprop="dateModified" datetime="2019-10-24T14:11:56+00:00">2019-10-24</time>
+              </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/2019/06/24/IA32-and-Intel64-Basic-Execution-Environment/#comments" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/06/24/IA32-and-Intel64-Basic-Execution-Environment/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>本文是对 <em>intel 64 and IA-32 Architecture Software Developer's Manual</em> 中第3章<em>Basic Excution Environment</em>的翻译。</p>
+<p>本章内容描述了 Intel 64 或 IA-32 汇编语言程序员所能见的基本的执行环境(basic execution environment)。描述了处理器如何执行指令，以及它如何保存和操作数据。本章所讲的执行环境(execution environment)包括内容(地址空间 address space ), 通用数据寄存器(general-purpose data register)， 段寄存器(segment register)， 标志寄存器(flag register)， 指令指针寄存器(instruction pointer register)。</p>
+<a id="more"></a>
+<h2 id="工作模式-modes-of-operation">工作模式 MODES OF OPERATION</h2>
+<p>IA-32 架构支持3种基本的工作模式： 保护模式(protected mode)， 实地址模式(real-address mode)， 系统管理模式(system management mode)。工作模式决定了哪些指令以及架构特性是否可用</p>
+<ul>
+<li><strong>保护模式 (Protected mode)</strong>： 该模式是处理器的自然状态(native state)。这种模式有一个特性：它能够在一个保护的，多任务环境中直接执行 “实地址模式 real-address mode”的8086软件。这个特性被称为<strong>虚拟8086模式 virtual-8086 mode</strong>，虽然虚拟8086模式并不是一个真正的处理器模式。虚拟8086模式实际上仅仅是保护模式的一个特性。</li>
+<li><strong>实地址模式(real-address mode)</strong>： 这种模式实现了 Intel 8086 处理器的编成环境，并且在其基础上有所扩展(比如转换到保护模式或系统管理模式的能力)。上电或重启后，处理器处于实地址模式。</li>
+<li><strong>系统管理模式(system management mode)</strong>： 该模式为操作系统提供了一个透明的机制来实现平台特定的汉书，比如 power mannagement 和 system security。 当外部SMM interrupt pin (SMI#) 激活时，或者从APIC接受到SMI时，处理器就会进入系统管理模式。处于该模式时，处理器会保存程序的基本上下文，并且拥有一个独立的地址空间。</li>
+</ul>
+<h3 id="intel-64-架构">Intel 64 架构</h3>
+<p>Intel 64 架构增加了 IA-32e mode。 IA-32e mode 有2种子模式：</p>
+<ul>
+<li><strong>兼容模式 (Compatability mode)</strong>： 兼容模式保证了遗留下来的16-bit和32-bit应用无需重新编译就能够运行在 64-bit 操作系统。</li>
+<li><strong>64bit mode</strong>：这种模式使一个 64-bit 操作系统能够运行可访问 64-bit 线性地址空间的程序。</li>
+</ul>
+<h2 id="基本运行环境概述-overview-of-the-basic-execution-environment">基本运行环境概述 OVERVIEW OF THE BASIC EXECUTION ENVIRONMENT</h2>
+<p>任何运行在 IA-32 处理器的程序拥有一组资源来执行指令以及保存代码、数据和状态信息。这些资源组成了 IA-32 处理器的基本运行环境。Intel 64 处理器支持 IA-32 的基本运行环境，以及一个类似的环境(IA-32e mode下 能够执行 64-bit 程序和 32-bit 程序。)</p>
+<ul>
+<li><strong>地址空间 Address Space</strong>： 任何运行在 IA-32 处理器的程序能够寻址到一个最大4GBytes(2^32 bytes)的线性地址空间，以及一个最大64GBytes(2^36 bytes)的物理地址空间。</li>
+<li><strong>Basic program execution registers</strong>: 8个32-bit通用寄存器(GPRs)， 6个16-bit段寄存器， 32-bit EFLAGS 寄存器， 32-bit EIP寄存器组成了执行一组通用指令的基本运行环境。</li>
+<li><strong>x87 FPU registers</strong>： 略</li>
+<li><strong>MMX registers</strong>： 略</li>
+<li><strong>XMM registers</strong>： 略</li>
+<li><strong>YMM registers</strong>： 略</li>
+<li><strong>Bounds registers</strong>： 略</li>
+<li><strong>BNDCFGU and BNDSTATUS</strong>： 略</li>
+<li><strong>Stack</strong>： 栈执行了调用子程序以及参数传递的存在。</li>
+</ul>
+<p>除了在这些基本运行环境提供的资源外， IA-32 架构还提供了以下的资源，作为系统架构的一部分。</p>
+<ul>
+<li><strong>I/O Port</strong>： 略</li>
+<li><strong>Control register</strong>： 5个控制寄存器(CR0 到 CR4)决定了处理器的工作模式以及当前执行任务的特性。</li>
+<li><strong>Memory management register</strong>： GDTR，IDTR，任务寄存器(task register)，LDTR共同决定了保护模式下内存管理的数据结构的位置。</li>
+<li><strong>Debug register</strong>： DR0到DR7</li>
+<li><strong>Memory type range registers (MTRRs)</strong>： 略</li>
+<li><strong>Machine specific registers (MSRs)</strong>： 处理器提供了许多特定的寄存器，用来控制和报告处理器的性能。</li>
+<li><strong>Machine check register</strong>： Machine check registers 包含了一系列的control, status, error-reporting MSRs。用来检测和报告硬件错误。</li>
+<li><strong>Performance monitoring counters</strong>： 略</li>
+</ul>
+<h3 id="bit-mode-execution-environment">64-Bit Mode Execution Environment</h3>
+<ul>
+<li><strong>地址空间 Address Space</strong>： 任何运行在 IA-32 处理器，处于64-bit模式的程序能够寻址到一个最大2^64 bytes的线性地址空间，以及一个最大2^52 bytes的物理地址空间。软件能够查询 CPUID 以查看处理器所支持的物理地址大小。</li>
+<li><strong>Basic program execution registers</strong>: 16个64-bit通用寄存器(GPRs)， 6个16-bit段寄存器， 64-bit RFLAGS 寄存器， 64-bit RIP寄存器组成了执行一组通用指令的基本运行环境。</li>
+<li><strong>XMM registers</strong>： 略</li>
+<li><strong>YMM registers</strong>： 略</li>
+<li><strong>BND registers, BNDCFGU and BNDSTATUS</strong>： 略</li>
+<li><strong>Stack</strong>： The stack pointer is 64 bit. Stack size is not controlled by a bit in the SS descriptor(as it in non-64-bit modes) nor can the pointer size be overridden by an instruction prefix.</li>
+<li><strong>Control registers</strong>： 控制寄存器被扩展到64-bit。同时添加了一个新的控制寄存器(the task priority register: CR8 or TPR)。</li>
+<li><strong>Debug registers</strong>： 略</li>
+<li><strong>Descriptor table register</strong>： GDTR(global descriptor table register) 和 IDTR(interrupt table register) 扩展到 10 bytes，所以它们能够处理 64-bit的基地址。 LDTR(local descriptor table register) 和 TR(task register) 同样扩展到能够处理 64-bit地址。</li>
+</ul>
+<h2 id="内存组织-memory-organization">内存组织 memory organization</h2>
+<p>处理器总线上寻址的内存称为 <strong>物理内存(physical memory)</strong>。物理内存是一个 8-bit byte 的序列。每个byte都有一个唯一的地址，称为 <strong>物理地址(physical address)</strong>。如果处理器不支持64位架构，那么 <strong>物理地址空间(physical address space)</strong> 的范围从0到最大2^36-1，即64G Bytes。64位架构会有所不同。</p>
+<h3 id="ia-32-memory-models">IA-32 memory models</h3>
+<p>IA-32 有3种内存模型，分别是<strong>Flat memory model</strong>， <strong>Segmented memory model</strong>， <strong>Real-Address mode memory model</strong> 。</p>
+<ul>
+<li><p><strong>平坦模型(Flat memory model)</strong>：对程序而言，内存就好像一个平坦的，连续的地址空间，这个空间被称为<strong>线性地址空间 Linear Address Space</strong>。 代码、数据以及栈都包含在这个地址空间内。<strong>线性地址空间 Linear Address Space</strong>可以字节寻址的，其地址范围从0到2^32-1。在这个地址空间内的任何一个字节的地址被称为<strong>线性地址 Linear Address</strong>。</p></li>
+<li><p><strong>分段模型(Segmented memory model)</strong>：对程序而言，内存是一组独立的内存空间，这些内存空间被称为段(segments)。 代码、数据、栈通常被包含在不同的段中。访问某个段的某个字节，程序需要一个logical address。 这个logcial address包含了一个segment selector和一个offset。(logical address通常被称作far pointer)。IA-32可以有16383个不同类型和大小的segments，每个segment最大可以有2^32 bytes。</p></li>
+</ul>
+<p>对于芯片内部，系统定义的所有segment都映射(map)到处理器的线性地址空间。访问一个内存地址，处理器会将每个logical address转换成linear address。这个转换对应用程序而言是透明的。</p>
+<ul>
+<li><strong>实地址模式内存模型(Real-Address mode memory model)</strong>：</li>
+</ul>
+<p>这是Intel 8086处理器的内存模型。这个模型仅为了兼容性而存在。略。</p>
+<h3 id="分页与虚拟内存-paging-and-virtual-memory">分页与虚拟内存 (paging and virtual memory)</h3>
+<p>无论是Flat memory 还是 segmented memory， 线性地址空间总是映射到物理地址空间，或直接或通过分页。当直接映射的时候，每个线性地址空间都与物理地址空间一一对应。当使用IA-32结构的分页机制，线性地址空间被分页， 映射到虚拟地址空间。 虚拟地址空间然后再安需映射到物理地址空间。分页机制对应用程序是透明的。所有的应用程序看到的都是它的线性地址空间。</p>
+<p>此外， IA-32 架构的分页机制还支持：</p>
+<ul>
+<li><strong>Physical Address Extensions (PAE)</strong>： PAE 支持对大于 4 GBytes 的物理地址空间寻址。</li>
+<li><strong>Page Size Extension</strong>： 4 MByte page</li>
+</ul>
+<h3 id="memory-organization-in-64-bit-mode">Memory Organization in 64-Bit Mode</h3>
+<p>Intel 64位架构支持物理地址空间大于64GByte； IA-32 处理器的实际物理地址要看具体实现。在 64-bit mode 中，架构是支持 64-bit 线性地址的，但支持64-bit的处理器可能只实现了小于 64-bit的。线性地址空间映射到物理地址空间是通过 PAE 分页机制来实现的。</p>
+<h3 id="工作模式-vs.-内存模型modes-of-operation-vs.-memory-model">工作模式 vs. 内存模型(Modes of Operation vs. Memory Model)</h3>
+<p>当为IA-32或者Intel 64 处理器编写代码时，程序员需要了解当执行该代码时，处理器将处于什么operation mode 以及 何种memory model将被使用。处理器的operation mode与memory model的关系如下：</p>
+<p><strong>保护模式(Protected mode)</strong>: 处理器处于保护模式时，能够使用任何内存模型。(real-addressing mode memory model在virtual-8086下使用)。</p>
+<p><strong>实地址模式(Real-address mode)</strong>: 处理器处于实地址模式时，只支持实地址模式内存模型(real-address mode memory model)。</p>
+<p><strong>系统管理模式(System managemenr mode)</strong>： 当处于SMM，处理器使用一个单独的地址空间，称为the system management RAM(SMRAM)。这种memory model与real-address mode model 有点类似。</p>
+<p><strong>兼容模式(Compatibility mode)</strong>： 兼容模式下与 32-bit 保护模式的内存模型一致。分段(segmentation)机制与 32-bit 保护模式的分段机制是一样的。</p>
+<p><strong>64-bit mode</strong>： 分段通常是关闭了(并不完全)，使用平坦的 64-bit 线性地址空间。 特别提出， 64-bit mode中， 处理器把CS，DS，ES和SS的段基址(segement base)当作是0。这将线性地址等效于一个有效地址(effective address)。在64-bit mode 中， 分段模型和实地址模式内存模型是不可用的。</p>
+<h3 id="bit地址与运算数-和-16bit地址与运算数-32-bit-and-16bit-address-and-operand-sizes">32-bit地址与运算数 和 16bit地址与运算数 (32-Bit and 16Bit Address and Operand Sizes)</h3>
+<p>处于保护模式时， IA-32 处理器能够配置位 32-bit 的地址(address)以及操作数(operand size)， 或者 16-bit 的地址(address)以及操作数(operand size)。如果是 32-bit 的地址和操作数，那么最大线性地址 或者 segement offset 是 FFFFFFFFH (2^32-1); 操作数通常是 8-bit 或 32 bit。 如果是 16-bit的地址和操作数，最大的线性地址 或者 segement offset 是 FFFFH (2^16-1); 操作数通常是 8-bit 或者 16-bit。</p>
+<p>当使用 32-bit 寻址时， 一个logical address(far point)由一个 16-bit segment selector 和一个 32-bit 的 offset 组成。 当使用 16-bit 寻址时， 一个logical address(far point)由一个 16-bit segment selector 和一个 16-bit 的 offset 组成。</p>
+<p>指令前缀(instruction prefixes)允许临时覆写(override)默认的地址大小(address size) and/or 操作数大小(operand size)。</p>
+<p>当处于protected mode时， 当其执行的代码所属的segment descriptor定义了其默认的address and operand size。segment descriptor是一个系统的数据结构，对应用程序而言通常不可见。汇编指令(assembler directives)允许为程序选择默认的addressing and operand size。然后汇编器(assembler)以及其他工具可以建立起合适的segment descriptor。</p>
+<p>当处于real-address mode时，默认的addressing and operand size是16 bits。 An address-size override can be used in real-address mode to enable 32-bit addressing. However, the maximum allowable 32-bit linear address is still 000FFFFFH (2^20-1)。</p>
+<h3 id="extented-physical-addressing-in-protected-mode">Extented Physical Addressing in Protected Mode</h3>
+<p>从 P6 系列开始， IA-32 架构支持寻址最大 64 GBytes (2^36 bytes)的物理内存。应用程序并不直接在物理内存上寻址，它们在一个最大 4 GBytes的线性地址空间中寻址。通过虚拟内存管理机制，将线性地址空间映射到物理地址空间。</p>
+<h3 id="address-calculation-in-64-bit-mode">Address Calculation in 64-Bit Mode</h3>
+<p>在绝大多数情况，64-bit mode 为代码、数据、栈一个平坦的地址空间。在 64-bit mode (如果没有address-size override)，有效地址(effective address)是 64-bit 的。一个有效地址的计算使用一个 64-bit 的基地址和变址寄存器(index registers)和标记扩展位移(sign-extend displacements)。</p>
+<p>64-bit mode的平坦地址空间中，线性地址等效与有效地址，因为基地址为0。但当FS和GS段使用了一个非0的基地址时，这个规则就会失效。在 64-bit mode 中，在加上完整的 64-bit 基地址前，有效地址模块已经被添加，并且有效地址被截断了。基地址从来不会被截断。</p>
+<p>64-bit mode 中 instruction pointer 被扩展到 64-bit。64-bit 的 instruction pointer 被称为 RIP。</p>
+<p>通常来说， 64-bit mode 中移位(displacements)和立即数(immediates)并没有扩展到 64-bits。它们依然被限制为 32-bit, 并且在有效地址计算中是符号扩展(sign-extended)。但是在 64-bit mode 中， 64-bit 的移位和立即数依然在 MOV 指令中提供了。</p>
+<h3 id="规范寻址canonical-addressing">规范寻址(Canonical Addressing)</h3>
+<p>由于处理器不一定完全实现 64-bit 线性地址，如最早实现 Intel 64 架构的 IA-32 处理器只支持 48-bit 线性地址。那么在 64-bit 模式，一个地址有一定的规范，若处理器只实现了 48-bit 线性空间，那么从 63 bit 到 47 bit(msb, most significant implemented bit)， 必须全为0或者全为1 (取决于 bit 47)。这种形式的地址称为规范形式。</p>
+<h2 id="基本程序执行寄存器-basic-program-execution-registers">基本程序执行寄存器 BASIC PROGRAM EXECUTION REGISTERS</h2>
+<p>IA-32 架构提供16个基本的寄存器：</p>
+<ul>
+<li><strong>General-purpose registers</strong>： 8个用来保存操作数和指针的寄存器。</li>
+<li><strong>Segment registers</strong>： 6个段选择器。</li>
+<li><strong>EFLAGS(program status and control) register</strong>： EFLAGS 寄存器报告了程序运行的状态，以及允许的限制。</li>
+<li><strong>EIP(instruction pointer) register</strong>： 32-bit 指向下一个执行指令。</li>
+</ul>
+<h3 id="general-purpose-registers">General-Purpose Registers</h3>
+<p>32-bit 通用寄存器 EAX, EBX, ECX, EDX, ESI, EDI, EBP 和 ESP 用来保存逻辑和数学运算的操作数，地址计算的操作数，内存指针。</p>
+<p>虽然所有这些寄存器都是通用的，但是 ESP 寄存器还被用来保存栈指针，因此ESP不应随意当成通用的寄存器。</p>
+<ul>
+<li><strong>EAX</strong>： 操作数和结果数据的累加器</li>
+<li><strong>EBX</strong>： 指针，指向DS段中的数据</li>
+<li><strong>ECX</strong>： 字符串和循环的计数器</li>
+<li><strong>EDX</strong>： I/O pointer</li>
+<li><strong>ESI</strong>： 指针，指向DS段中的数据；字符串操作的来源指针</li>
+<li><strong>EDI</strong>： 指针，指向ES段中的数据；字符串操作的来源指针</li>
+<li><strong>ESP</strong>： 栈指针(SS段)</li>
+<li><strong>EBP</strong>： 指针，指向栈上的数据(SS段)</li>
+</ul>
+<h4 id="general-purpose-registers-in-64-bit-mode">General-Purpose Registers in 64-Bit Mode</h4>
+<p>64-bit mode 中，有16个通用寄存器，且默认的操作数是 32-bit 的。但是通用寄存器能够处理 32-bit 或者 64-bit 操作数。 如果指定了 32-bit 操作数， 那么 EAX，EBX，ECX，EDX， EDI， ESI， EBP， ESP， R8D - R15D是可用的。如果指定了 64-bit 操作数， 那么 RAX, RBX, RCX, RDX, RDI, RSI, RBP, RSP, R8 - R15 是可用的。 R8D - R15D / R8 - R15 代表了8个新的通用寄存器。</p>
+<p>略</p>
+<h3 id="segment-registers">Segment Registers</h3>
+<p>略</p>
+<h4 id="segment-registers-in-64-bit-mode">Segment Registers in 64-Bit Mode</h4>
+<p>在 64-bit mode， CS，DS，ES，SS被认为其基地址为0。 FS， GS例外。</p>
+<p>略</p>
+<h3 id="eflags-register">EFLAGS Register</h3>
+<p>略</p>
+<h4 id="status-flags">Status Flags</h4>
+<p>略</p>
+<h4 id="df-flag">DF Flag</h4>
+<p>略</p>
+<h4 id="system-flags-and-iopl-field">System Flags and IOPL Field</h4>
+<p>略</p>
+<h4 id="rflags-register-in-64-bit-mode">RFLAGS Register in 64-Bit Mode</h4>
+<p>略</p>
+<h2 id="instruction-pointer">INSTRUCTION POINTER</h2>
+<p>略</p>
+<h3 id="instruction-point-in-64-bit-mode">Instruction Point in 64-Bit Mode</h3>
+<p>略</p>
+<h2 id="operand-size-and-address-size-attributes">OPERAND-SIZE AND ADDRESS-SIZE ATTRIBUTES</h2>
+<p>处理器处于保护模式时，每个代码段都有一个默认的操作数大小(operand-size)属性和地址大小(address-size)属性。这些属性通过段描述副中的 D 标志来决定。当 D 标志被设置，那么将会使用 32-bit 操作数大小属性和地址大小属性。当 D 标志 被清除， 那么将会使用 16-bit的属性。</p>
+<p>操作数大小(operand-size)属性决定了操作数的大小，当 16-bit 操作数大小属性决定了处理器能使用 8-bit 或者 16-bit 的操作数。32-bit 操作数大小属性决定了处理器能使用 8-bit 或者 32-bit 的操作数。</p>
+<p>同理，16-bit 地址大小属性决定了段偏移(segment offset)和移位(displacement)是 16-bit 的， 一个段被限制在 64KBytes 内。 32-bit 地址大小属性决定了段偏移(segment offset)和移位(displacement)是 32-bit 的， 允许寻址 4GBytes 空间。</p>
+<p>可以通过指令前缀修改某条指令的默认操作数大小属性和地址大小属性。</p>
+<h3 id="operand-size-and-address-size-in-64-bit-mode">Operand-Size and Address-Size in 64-Bit Mode</h3>
+<p>64-bit mode 中，默认的地址大小是 64-bit， 默认的操作数大小是 32-bit。当然同样可以用指令前缀来修改默认值。</p>
+<p>略</p>
+<h2 id="operand-addressing">OPERAND ADDRESSING</h2>
+<p>IA-32 架构的指令可以有0个或多个操作数。操作数来源可以是：</p>
+<ul>
+<li>指令自身(立即操作数， immediate operand)</li>
+<li>寄存器</li>
+<li>内存</li>
+<li>I/O 端口</li>
+</ul>
+<p>当一条指令要返回数据到一个目标操作数时，可以返回到：</p>
+<ul>
+<li>寄存器</li>
+<li>内存</li>
+<li>I/O 端口</li>
+</ul>
+<h3 id="immediate-operands">Immediate Operands</h3>
+<p>略</p>
+<h3 id="register-operands">Register Operands</h3>
+<p>源操作数和目标操作数(source operand and destination operand)可以是以下任意寄存器，取决于执行的指令：</p>
+<ul>
+<li>32-bit 通用寄存器(EAX, EBX, ECX, EDX, ESI, EDI, ESP, EBP)</li>
+<li>16-bit 通用寄存器(AX, BX, CX, DX, SI, DI, SP, BP)</li>
+<li>8-bit 通用寄存器(AH, BH， CH, DH， AL， BL， CL， DL)</li>
+<li>段寄存器(CS, DS, SS, ES, FS, GS)</li>
+<li>EFLAGS寄存器</li>
+<li>x87 FPU寄存器</li>
+<li>MXX 寄存器</li>
+<li>XMM 寄存器</li>
+<li>控制寄存器(CR0 - CR4) 系统表指针寄存器(GDTR， LDTR， IDTR, task register)</li>
+<li>debug 寄存器</li>
+<li>MSR 寄存器</li>
+</ul>
+<h4 id="register-operands-in-64-bit-mode">Register Operands in 64-Bit Mode</h4>
+<ul>
+<li>64-bit 通用寄存器(RAX, RBX, RCX, RDX, RSI, RDI, RSP, RBP, R8 - R15)</li>
+<li>32-bit 通用寄存器(EAX, EBX, ECX, EDX, ESI, EDI, ESP, EBP，R8D - R15D)</li>
+<li>16-bit 通用寄存器(AX, BX, CX, DX, SI, DI, SP, BP, R8W - R15W)</li>
+<li>8-bit 通用寄存器(使用 REX 前缀可用：AL，BL，CL，DL，SIL，DIL，SPL，BPL， R8L - R15L；不使用 REX 前缀可用：AL，BL，CL，DL，AH，BH，CH，DH)</li>
+<li>段寄存器(CS, DS, SS, ES, FS, GS)</li>
+<li>RFLAGS寄存器</li>
+<li>x87 FPU寄存器</li>
+<li>MXX 寄存器</li>
+<li>XMM 寄存器</li>
+<li>控制寄存器(CR0 - CR4 以及 CR8) 系统表指针寄存器(GDTR， LDTR， IDTR, task register)</li>
+<li>debug 寄存器</li>
+<li>MSR 寄存器</li>
+<li>RDX:RAX寄存器对，代表一个 128-bit 操作数</li>
+</ul>
+<h3 id="memory-operands">Memory Operands</h3>
+<p>略</p>
+<h4 id="memory-operands-in-64-bit-mode">Memory Operands in 64-Bit Mode</h4>
+<p>略</p>
+<h3 id="specifying-a-segment-selector">Specifying a Segment Selector</h3>
+<p>略</p>
+<h4 id="specifying-a-segment-selector-in-64-bit-mode">Specifying a Segment Selector in 64-Bit Mode</h4>
+<p>略</p>
+<h3 id="specifying-an-offset">Specifying an Offset</h3>
+<ul>
+<li><strong>Displacement</strong>： 一个 8-bit 或 16-bit 或 32-bit的值。</li>
+<li><strong>Base</strong>： 在通用寄存器中的值</li>
+<li><strong>Index</strong>： 在通用寄存器中的值</li>
+<li><strong>Scale factor</strong>： 2 或 4 或 8</li>
+</ul>
+<p>offset = Base + (Index * Scale) + Displacement</p>
+<h4 id="specifying-an-offset-in-64-bit-mode">Specifying an Offset in 64-Bit Mode</h4>
+<ul>
+<li><p><strong>Displacement</strong>： 一个 8-bit 或 16-bit 或 32-bit的值。</p></li>
+<li><p><strong>Base</strong>： 在 64-bit 通用寄存器中的值</p></li>
+<li><p><strong>Index</strong>： 在 64-bit 通用寄存器中的值</p></li>
+<li><p><strong>Scale factor</strong>： 2 或 4 或 8</p></li>
+<li><p><strong>RIP + Displacement</strong></p></li>
+</ul>
+<h3 id="assembler-and-compiler-addressing-modes">Assembler and Compiler Addressing Modes</h3>
+<p>略</p>
+<h3 id="io-port-addressing">I/O Port Addressing</h3>
+<p>略</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+                <a href="/2019/05/21/elements-of-set-theory/" rel="next" title="elements of set theory">
+                  <i class="fa fa-chevron-left"></i> elements of set theory
+                </a>
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+            </div>
+          </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    
+  <div class="comments" id="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#工作模式-modes-of-operation"><span class="nav-number">1.</span> <span class="nav-text">工作模式 MODES OF OPERATION</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#intel-64-架构"><span class="nav-number">1.1.</span> <span class="nav-text">Intel 64 架构</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#基本运行环境概述-overview-of-the-basic-execution-environment"><span class="nav-number">2.</span> <span class="nav-text">基本运行环境概述 OVERVIEW OF THE BASIC EXECUTION ENVIRONMENT</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#bit-mode-execution-environment"><span class="nav-number">2.1.</span> <span class="nav-text">64-Bit Mode Execution Environment</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#内存组织-memory-organization"><span class="nav-number">3.</span> <span class="nav-text">内存组织 memory organization</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#ia-32-memory-models"><span class="nav-number">3.1.</span> <span class="nav-text">IA-32 memory models</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#分页与虚拟内存-paging-and-virtual-memory"><span class="nav-number">3.2.</span> <span class="nav-text">分页与虚拟内存 (paging and virtual memory)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#memory-organization-in-64-bit-mode"><span class="nav-number">3.3.</span> <span class="nav-text">Memory Organization in 64-Bit Mode</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#工作模式-vs.-内存模型modes-of-operation-vs.-memory-model"><span class="nav-number">3.4.</span> <span class="nav-text">工作模式 vs. 内存模型(Modes of Operation vs. Memory Model)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#bit地址与运算数-和-16bit地址与运算数-32-bit-and-16bit-address-and-operand-sizes"><span class="nav-number">3.5.</span> <span class="nav-text">32-bit地址与运算数 和 16bit地址与运算数 (32-Bit and 16Bit Address and Operand Sizes)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#extented-physical-addressing-in-protected-mode"><span class="nav-number">3.6.</span> <span class="nav-text">Extented Physical Addressing in Protected Mode</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#address-calculation-in-64-bit-mode"><span class="nav-number">3.7.</span> <span class="nav-text">Address Calculation in 64-Bit Mode</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#规范寻址canonical-addressing"><span class="nav-number">3.8.</span> <span class="nav-text">规范寻址(Canonical Addressing)</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#基本程序执行寄存器-basic-program-execution-registers"><span class="nav-number">4.</span> <span class="nav-text">基本程序执行寄存器 BASIC PROGRAM EXECUTION REGISTERS</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#general-purpose-registers"><span class="nav-number">4.1.</span> <span class="nav-text">General-Purpose Registers</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#general-purpose-registers-in-64-bit-mode"><span class="nav-number">4.1.1.</span> <span class="nav-text">General-Purpose Registers in 64-Bit Mode</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#segment-registers"><span class="nav-number">4.2.</span> <span class="nav-text">Segment Registers</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#segment-registers-in-64-bit-mode"><span class="nav-number">4.2.1.</span> <span class="nav-text">Segment Registers in 64-Bit Mode</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#eflags-register"><span class="nav-number">4.3.</span> <span class="nav-text">EFLAGS Register</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#status-flags"><span class="nav-number">4.3.1.</span> <span class="nav-text">Status Flags</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#df-flag"><span class="nav-number">4.3.2.</span> <span class="nav-text">DF Flag</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#system-flags-and-iopl-field"><span class="nav-number">4.3.3.</span> <span class="nav-text">System Flags and IOPL Field</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#rflags-register-in-64-bit-mode"><span class="nav-number">4.3.4.</span> <span class="nav-text">RFLAGS Register in 64-Bit Mode</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#instruction-pointer"><span class="nav-number">5.</span> <span class="nav-text">INSTRUCTION POINTER</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#instruction-point-in-64-bit-mode"><span class="nav-number">5.1.</span> <span class="nav-text">Instruction Point in 64-Bit Mode</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#operand-size-and-address-size-attributes"><span class="nav-number">6.</span> <span class="nav-text">OPERAND-SIZE AND ADDRESS-SIZE ATTRIBUTES</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#operand-size-and-address-size-in-64-bit-mode"><span class="nav-number">6.1.</span> <span class="nav-text">Operand-Size and Address-Size in 64-Bit Mode</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#operand-addressing"><span class="nav-number">7.</span> <span class="nav-text">OPERAND ADDRESSING</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#immediate-operands"><span class="nav-number">7.1.</span> <span class="nav-text">Immediate Operands</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#register-operands"><span class="nav-number">7.2.</span> <span class="nav-text">Register Operands</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#register-operands-in-64-bit-mode"><span class="nav-number">7.2.1.</span> <span class="nav-text">Register Operands in 64-Bit Mode</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#memory-operands"><span class="nav-number">7.3.</span> <span class="nav-text">Memory Operands</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#memory-operands-in-64-bit-mode"><span class="nav-number">7.3.1.</span> <span class="nav-text">Memory Operands in 64-Bit Mode</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#specifying-a-segment-selector"><span class="nav-number">7.4.</span> <span class="nav-text">Specifying a Segment Selector</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#specifying-a-segment-selector-in-64-bit-mode"><span class="nav-number">7.4.1.</span> <span class="nav-text">Specifying a Segment Selector in 64-Bit Mode</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#specifying-an-offset"><span class="nav-number">7.5.</span> <span class="nav-text">Specifying an Offset</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#specifying-an-offset-in-64-bit-mode"><span class="nav-number">7.5.1.</span> <span class="nav-text">Specifying an Offset in 64-Bit Mode</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#assembler-and-compiler-addressing-modes"><span class="nav-number">7.6.</span> <span class="nav-text">Assembler and Compiler Addressing Modes</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#io-port-addressing"><span class="nav-number">7.7.</span> <span class="nav-text">I/O Port Addressing</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <img class="site-author-image" itemprop="image" alt="HeBinhao"
+    src="/images/avatar.gif">
+  <p class="site-author-name" itemprop="name">HeBinhao</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">3</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/hebinhao1993" title="Github &amp;rarr; https:&#x2F;&#x2F;github.com&#x2F;hebinhao1993" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>Github</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">HeBinhao</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.0.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.4.2
+  </div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/pisces.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://hebinhao1993.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  function loadComments() {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: {page: {
+            url: "https://hebinhao1993.github.io/2019/06/24/IA32-and-Intel64-Basic-Execution-Environment/",
+            identifier: "2019/06/24/IA32-and-Intel64-Basic-Execution-Environment/",
+            title: "Intel 64 和 IA-32 基本运行环境"
+          }
+        }
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://hebinhao1993.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  }
+    window.addEventListener('load', loadComments, false);
+</script>
+
+</body>
+</html>
