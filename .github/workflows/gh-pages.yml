@@ -1,0 +1,91 @@
+ 
+name: github pages
+
+on: 
+  push:
+    branches:
+      source
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [10.x]
+
+    steps:
+    - uses: actions/checkout@v1
+    - uses: actions/setup-node@v1
+      with:
+        node-version: '10.x'
+    - name: install yarn and pandoc and yq
+      run: |
+        curl -o- -L https://yarnpkg.com/install.sh | bash
+        export PATH=$HOME/.yarn/bin:$PATH
+        wget https://github.com/jgm/pandoc/releases/download/2.7.3/pandoc-2.7.3-1-amd64.deb
+        sudo dpkg -i pandoc-2.7.3-1-amd64.deb
+        sudo add-apt-repository ppa:rmescandon/yq
+        sudo apt update
+        sudo apt install yq -y
+    - name: update npm and install hexo-cli
+      run: |
+        npm install -g npm
+        npm install -g hexo-cli
+    - name: init a blog and install theme next
+      run: |
+        hexo init blog
+        rm -rf blog/themes/landscape
+        git clone https://github.com/theme-next/hexo-theme-next.git --depth=1 blog/themes/next
+    - name: move draft and post
+      run: |
+        rm -rf blog/source/_drafts
+        rm -rf blog/source/_posts
+        mv _drafts blog/source/
+        mv _posts blog/source/
+    - name: hexo _config.yml
+      run: |
+        yq w -i _config.yml title "HeBinhao's Blog"
+        yq w -i _config.yml author HeBinhao
+        yq w -i _config.yml url 'https://hebinhao1993.github.io'
+        yq w -i _config.yml root '/'
+        yq w -i _config.yml permalink ':year/:month/:day/:title/'
+        yq w -i _config.yml theme next
+        yq w -i _config.yml language zh-CN
+      working-directory: ./blog
+    - name: theme next _config.yml
+      run: |
+        # scheme select: Gemini
+        yq w -i _config.yml scheme Gemini
+        # menu
+        yq w -i _config.yml menu.about '/about/ || user'
+        yq w -i _config.yml menu.tags '/tags/ || tags'
+        yq w -i _config.yml menu.categories '/categories/ || th'
+        # social links
+        yq w -i _config.yml social.Github 'https://github.com/hebinhao1993 || github'
+        # github bannner: currently disabled for me
+        # math
+        yq w -i _config.yml math.enable true
+        yq w -i _config.yml math.mathjax.enable true
+        # search
+        # search - disqus
+        yq w -i _config.yml disqus.enable true
+        yq w -i _config.yml disqus.shortname hebinhao1993
+      working-directory: ./blog/themes/next
+    - name: build
+      run: |
+        yarn
+        npm uninstall hexo-renderer-marked --save
+        npm install hexo-renderer-pandoc --save
+        hexo clean
+        hexo generate
+      working-directory: ./blog
+    - name: gh-page depoly
+      uses: peaceiris/actions-gh-pages@v2.6.0-rc0
+      env:
+        ACTIONS_DEPLOY_KEY: ${{ secrets.ACTIONS_DEPLOY_KEY }}
+        PUBLISH_BRANCH: master
+        PUBLISH_DIR: ./blog/public
+      with:
+        forceOrphan: true
